@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-g" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Character Factory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link rel="stylesheet" href="https://aistudiocdn.com/react-easy-crop@^5.0.7/react-easy-crop.css">
+    <style>
+      :root {
+        --glow-color: #8b5cf6; /* purple-500 */
+      }
+
+      /* Custom scrollbar for webkit browsers */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #030712; /* gray-950 */
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #374151; /* gray-700 */
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #4b5563; /* gray-600 */
+      }
+      
+      /* Font Setup */
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+      }
+
+      /* Premium Background */
+      .premium-background {
+        background-color: #0c0a09;
+        background-image: 
+          radial-gradient(ellipse 80% 50% at 50% -20%, rgba(120, 113, 108, 0.15), transparent),
+          radial-gradient(ellipse 80% 80% at 50% 50%, rgba(0,0,0,0.2), #0c0a09);
+      }
+      .background-grid-glow {
+        background-image:
+          linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+        background-size: 24px 24px;
+        mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, #000 10%, transparent 80%);
+      }
+
+      /* Keyframes */
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fadeIn {
+        animation: fadeIn 0.5s ease-out forwards;
+      }
+
+      @keyframes fadeInOut {
+        0%, 100% { opacity: 0; transform: translateY(20px); }
+        10%, 90% { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fadeInOut {
+        animation: fadeInOut 3s ease-in-out forwards;
+      }
+
+      @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 12px 0px var(--glow-color); }
+        50% { box-shadow: 0 0 24px 4px var(--glow-color); }
+      }
+      .animate-pulse-glow {
+        --glow-color: rgba(139, 92, 246, 0.6);
+        animation: pulse-glow 2s ease-in-out infinite;
+      }
+
+      /* Glassmorphism Card Style */
+      .glass-card {
+        background: rgba(24, 24, 27, 0.5);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      }
+      .glass-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        background: radial-gradient(circle at 50% 0, rgba(255, 255, 255, 0.1), transparent 50%);
+      }
+
+      /* Gallery Item 3D Hover Effect */
+      .item-card {
+        transform-style: preserve-3d;
+        perspective: 1000px;
+      }
+      .item-card-content {
+        transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      .item-card:hover .item-card-content {
+        transform: translateZ(25px) rotateX(2deg) rotateY(2deg);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px var(--glow-color) inset;
+      }
+      
+      /* Ripple Effect */
+      @keyframes ripple {
+        to {
+          transform: scale(4);
+          opacity: 0;
+        }
+      }
+      .ripple {
+        position: absolute;
+        border-radius: 50%;
+        transform: scale(0);
+        animation: ripple 600ms linear;
+        background-color: rgba(255, 255, 255, 0.7);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.553.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.1",
+    "react-easy-crop": "https://aistudiocdn.com/react-easy-crop@^5.0.7"
+  }
+}
+</script>
+</head>
+  <body class="premium-background text-gray-200 antialiased">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
