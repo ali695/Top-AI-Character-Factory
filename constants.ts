@@ -1,5 +1,6 @@
+
 import { ArtStyle } from './types';
-import { Camera, Film, Tv2, ZoomIn, Brush, User, Swords, Rocket, FlaskConical } from 'lucide-react';
+import { Camera, Film, Tv2, ZoomIn, Brush, User, Swords, Rocket, FlaskConical, Smile, BookHeart, Ghost, Gamepad2, Scissors } from 'lucide-react';
 
 export const ART_STYLES: ArtStyle[] = [
   {
@@ -19,6 +20,18 @@ export const ART_STYLES: ArtStyle[] = [
     name: 'Anime',
     prompt_suffix: 'modern anime style, detailed eyes and hair, vibrant, trending on pixiv',
     icon: Tv2
+  },
+  {
+    id: 'cartoon',
+    name: 'Cartoon',
+    prompt_suffix: 'western cartoon style, 2D flat animation, bold lines, expressive characters, vibrant flat colors',
+    icon: Smile
+  },
+  {
+    id: 'storybook',
+    name: 'Storybook',
+    prompt_suffix: 'whimsical storybook illustration, watercolor and ink, soft pastel colors, magical atmosphere, highly detailed background',
+    icon: BookHeart
   },
   {
     id: 'hyper-detail',
@@ -45,10 +58,28 @@ export const ART_STYLES: ArtStyle[] = [
     icon: Swords
   },
   {
+    id: 'horror',
+    name: 'Horror',
+    prompt_suffix: 'horror theme, dark, eerie, unsettling, dramatic shadows, grimy texture, scary atmosphere',
+    icon: Ghost
+  },
+  {
     id: 'sci-fi',
     name: 'Sci-Fi',
     prompt_suffix: 'sci-fi concept art, futuristic, high-tech, cyberpunk aesthetic, neon lighting',
     icon: Rocket
+  },
+  {
+    id: 'retro-game',
+    name: 'Retro Game',
+    prompt_suffix: 'pixel art, 16-bit graphics, retro game style, dithering, vibrant sprites',
+    icon: Gamepad2
+  },
+  {
+    id: 'papercraft',
+    name: 'Papercraft',
+    prompt_suffix: 'layered papercraft style, paper texture, depth of field, origami look, soft shadows',
+    icon: Scissors
   },
   {
     id: 'experimental',

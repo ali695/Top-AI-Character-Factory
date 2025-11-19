@@ -43,7 +43,7 @@ const generateImageFromImages = async (prompt: string, base64ImageDataUris: stri
   });
 
   const candidate = response.candidates?.[0];
-  if (candidate?.finishReason && ['SAFETY', 'NO_IMAGE', 'RECITATION'].includes(candidate.finishReason)) {
+  if (candidate?.finishReason && ['SAFETY', 'NO_IMAGE', 'RECITATION', 'IMAGE_OTHER'].includes(candidate.finishReason)) {
      throw new Error(`Image generation failed: ${candidate.finishReason}. This may be due to safety policies. Please adjust your prompt or image.`);
   }
   if (!candidate?.content?.parts) {
@@ -182,7 +182,7 @@ export const upscaleImage = async (base64Image: string, mimeType?: string): Prom
     });
 
     const candidate = response.candidates?.[0];
-    if (candidate?.finishReason && ['SAFETY', 'NO_IMAGE', 'RECITATION'].includes(candidate.finishReason)) {
+    if (candidate?.finishReason && ['SAFETY', 'NO_IMAGE', 'RECITATION', 'IMAGE_OTHER'].includes(candidate.finishReason)) {
        throw new Error(`Image upscale failed: ${candidate.finishReason}. This may be due to safety policies. Please try a different image.`);
     }
     if (!candidate?.content?.parts) {

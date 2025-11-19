@@ -22,9 +22,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, onUpscale, onEdit, onD
   };
 
   const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this item?')) {
-      onDelete(item.id);
-    }
+    onDelete(item.id);
   };
 
   return (

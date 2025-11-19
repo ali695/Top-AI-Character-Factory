@@ -1,5 +1,6 @@
+
 import { PresetCategory, Preset } from './types';
-import { Film, User, Heart, Palette, Globe, Camera, Paintbrush, TrendingUp, Sparkles, Ghost, Bot, Moon, Image } from 'lucide-react';
+import { Film, User, Heart, Palette, Globe, Camera, Paintbrush, TrendingUp, Sparkles, Ghost, Bot, Moon, Image, BookOpen, Gamepad2, Smile } from 'lucide-react';
 
 const p_url = (seed: string, size = 200) => `https://picsum.photos/seed/${seed}/${size}`;
 
@@ -26,6 +27,31 @@ export const PRESET_CATEGORIES: PresetCategory[] = [
         prompt: 'dynamic action shot, motion blur, intense, high-energy, cinematic fight scene',
         thumbnail: p_url('action-thumb'), tagline: 'High-energy, dynamic action.', tags: ['action', 'cinematic', 'motion'],
         previewImages: [p_url('action-1', 400), p_url('action-2', 400), p_url('action-3', 400)],
+      },
+    ]
+  },
+  {
+    id: 'storybook-fantasy',
+    name: 'Storybook & Folklore',
+    icon: BookOpen,
+    presets: [
+      {
+        id: 'vintage-storybook', name: 'Vintage Book',
+        prompt: 'classic vintage storybook illustration, Arthur Rackham style, ink and watercolor, intricate details, muted tones, textured paper background',
+        thumbnail: p_url('vintage-book-thumb'), tagline: 'Classic, intricate fairy tale art.', tags: ['storybook', 'vintage', 'fairy tale', 'illustration'],
+        previewImages: [p_url('book-1', 400), p_url('book-2', 400), p_url('book-3', 400)],
+      },
+      {
+        id: 'magical-fairytale', name: 'Magical Fairy Tale',
+        prompt: 'whimsical fairy tale illustration, vibrant pastel colors, sparkling magic, soft lighting, dreamy atmosphere, detailed forest background',
+        thumbnail: p_url('fairy-thumb'), tagline: 'Dreamy, colorful magic.', tags: ['fairy tale', 'magic', 'fantasy', 'cute'],
+        previewImages: [p_url('fairy-1', 400), p_url('fairy-2', 400), p_url('fairy-3', 400)],
+      },
+      {
+        id: 'popup-book', name: 'Pop-Up Book',
+        prompt: 'layered paper pop-up book style, depth of field, paper texture, cut-out look, vibrant colors, diorama effect',
+        thumbnail: p_url('popup-thumb'), tagline: '3D paper cutout world.', tags: ['paper', 'craft', 'pop-up', 'cute'],
+        previewImages: [p_url('popup-1', 400), p_url('popup-2', 400), p_url('popup-3', 400)],
       },
     ]
   },
@@ -57,6 +83,62 @@ export const PRESET_CATEGORIES: PresetCategory[] = [
         prompt: 'black and white film photography, high contrast, grainy texture, dramatic shadows, timeless feel',
         thumbnail: p_url('bw-thumb'), tagline: 'Timeless, high-contrast monochrome.', tags: ['b&w', 'film', 'portrait', 'dramatic'],
         previewImages: [p_url('bw-1', 400), p_url('bw-2', 400), p_url('bw-3', 400)],
+      },
+    ]
+  },
+  {
+    id: 'cartoon-games',
+    name: 'Cartoons & Games',
+    icon: Gamepad2,
+    presets: [
+      {
+        id: 'retro-cartoon', name: '1930s Cartoon',
+        prompt: '1930s rubber hose animation style, black and white, film grain, vintage cartoon, pie eyes, energetic poses',
+        thumbnail: p_url('retro-toon-thumb'), tagline: 'Vintage rubber-hose animation.', tags: ['cartoon', 'retro', 'vintage', 'bw'],
+        previewImages: [p_url('toon-1', 400), p_url('toon-2', 400), p_url('toon-3', 400)],
+      },
+      {
+        id: 'pixel-art', name: '16-Bit Pixel Art',
+        prompt: '16-bit pixel art, retro video game sprite, dithering, limited color palette, clean lines, detailed',
+        thumbnail: p_url('pixel-thumb'), tagline: 'Retro gaming nostalgia.', tags: ['pixel', 'game', 'retro', '8bit'],
+        previewImages: [p_url('pixel-1', 400), p_url('pixel-2', 400), p_url('pixel-3', 400)],
+      },
+      {
+        id: 'claymation', name: 'Claymation',
+        prompt: 'claymation style, stop-motion look, plasticine texture, visible fingerprints, soft lighting, Aardman style',
+        thumbnail: p_url('clay-thumb'), tagline: 'Hand-crafted clay stop-motion.', tags: ['clay', 'stop-motion', 'cartoon', 'cute'],
+        previewImages: [p_url('clay-1', 400), p_url('clay-2', 400), p_url('clay-3', 400)],
+      },
+    ]
+  },
+  {
+    id: 'dark-horror',
+    name: 'Horror & Dark Fantasy',
+    icon: Ghost,
+    presets: [
+       {
+        id: 'dark-fantasy-art', name: 'Dark Fantasy',
+        prompt: 'dark fantasy character art, gothic, moody lighting, intricate details, style of Dark Souls, epic',
+        thumbnail: p_url('darkfantasy-thumb'), tagline: 'Gothic, epic, and moody.', tags: ['fantasy', 'dark', 'gothic', 'epic'],
+        previewImages: [p_url('darkfantasy-1', 400), p_url('darkfantasy-2', 400), p_url('darkfantasy-3', 400)],
+      },
+      {
+        id: 'cinematic-horror', name: 'Cinematic Horror',
+        prompt: 'cinematic horror movie scene, high contrast, deep shadows, teal and orange color grading, suspenseful atmosphere',
+        thumbnail: p_url('horror-thumb'), tagline: 'Suspenseful movie quality.', tags: ['horror', 'dark', 'movie', 'scary'],
+        previewImages: [p_url('horror-1', 400), p_url('horror-2', 400), p_url('horror-3', 400)],
+      },
+      {
+        id: 'ghost-photo', name: 'Ghost Photography',
+        prompt: 'grainy paranormal investigation photo, motion blur, low light, night vision green tint, unsettling figure in background',
+        thumbnail: p_url('ghost-thumb'), tagline: 'Found footage and paranormal.', tags: ['ghost', 'scary', 'creepy', 'photo'],
+        previewImages: [p_url('ghost-1', 400), p_url('ghost-2', 400), p_url('ghost-3', 400)],
+      },
+       {
+        id: 'eldritch-horror', name: 'Eldritch Horror',
+        prompt: 'Lovecraftian cosmic horror, incomprehensible geometry, tentacles, madness, oil painting style, dark and grimy',
+        thumbnail: p_url('eldritch-thumb'), tagline: 'Cosmic madness and monsters.', tags: ['lovecraft', 'monster', 'horror', 'art'],
+        previewImages: [p_url('eldritch-1', 400), p_url('eldritch-2', 400), p_url('eldritch-3', 400)],
       },
     ]
   },
@@ -107,25 +189,6 @@ export const PRESET_CATEGORIES: PresetCategory[] = [
         prompt: 'game character design sheet, multiple views, turnaround, detailed concept art, clean background',
         thumbnail: p_url('charsheet-thumb'), tagline: 'For game and animation concepts.', tags: ['character design', 'concept art', 'game'],
         previewImages: [p_url('charsheet-1', 400), p_url('charsheet-2', 400), p_url('charsheet-3', 400)],
-      },
-    ]
-  },
-  {
-    id: 'dark-fantasy',
-    name: 'Dark Fantasy',
-    icon: Ghost,
-    presets: [
-       {
-        id: 'dark-fantasy-art', name: 'Dark Fantasy',
-        prompt: 'dark fantasy character art, gothic, moody lighting, intricate details, style of Dark Souls, epic',
-        thumbnail: p_url('darkfantasy-thumb'), tagline: 'Gothic, epic, and moody.', tags: ['fantasy', 'dark', 'gothic', 'epic'],
-        previewImages: [p_url('darkfantasy-1', 400), p_url('darkfantasy-2', 400), p_url('darkfantasy-3', 400)],
-      },
-      {
-        id: 'horror', name: 'Horror',
-        prompt: 'cinematic horror scene, suspenseful, dark, eerie atmosphere, style of cosmic horror',
-        thumbnail: p_url('horror-thumb'), tagline: 'Suspenseful and eerie visuals.', tags: ['horror', 'dark', 'eerie'],
-        previewImages: [p_url('horror-1', 400), p_url('horror-2', 400), p_url('horror-3', 400)],
       },
     ]
   },

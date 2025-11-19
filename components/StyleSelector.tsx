@@ -10,26 +10,31 @@ interface StyleSelectorProps {
 
 export const StyleSelector: React.FC<StyleSelectorProps> = ({ styles, selectedStyle, onSelectStyle, disabled = false }) => {
   return (
-    <div className={`grid grid-cols-3 gap-2 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+    <div className={`grid grid-cols-3 gap-2 ${disabled ? 'opacity-50' : ''}`}>
       {styles.map(style => {
         const isSelected = selectedStyle.id === style.id;
         return (
           <button
             key={style.id}
+            type="button"
             onClick={() => !disabled && onSelectStyle(style)}
             disabled={disabled}
-            className={`relative p-2 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 text-xs font-semibold
+            className={`group relative p-2 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 text-xs font-semibold overflow-hidden
+              ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
               ${isSelected
-                ? 'bg-purple-600/20 border border-purple-500 text-white'
-                : 'bg-white/5 border border-transparent hover:bg-white/10 text-gray-300'
+                ? 'border-purple-500 text-white'
+                : 'border-transparent hover:bg-white/10 text-gray-300'
               }
+              bg-white/5 border
             `}
           >
             {isSelected && (
-              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 opacity-50 -z-10" />
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 opacity-50" />
             )}
-            <style.icon size={20} />
-            <span>{style.name}</span>
+            <div className="relative z-10 flex flex-col items-center gap-1.5">
+               <style.icon size={20} />
+               <span className="text-center leading-tight">{style.name}</span>
+            </div>
           </button>
         );
       })}
