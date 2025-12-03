@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
-import { Image, MessageSquare } from 'lucide-react';
+import { Image, MessageSquare, Mic } from 'lucide-react';
 import { ImageGenerator } from './components/ImageGenerator';
 import { Chatbot } from './components/Chatbot';
+import { VoiceGenerator } from './components/VoiceGenerator';
 
-type Tab = 'generator' | 'chatbot';
+type Tab = 'generator' | 'chatbot' | 'voice';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('generator');
@@ -13,6 +14,8 @@ const App: React.FC = () => {
     switch (activeTab) {
       case 'generator':
         return <ImageGenerator />;
+      case 'voice':
+        return <VoiceGenerator />;
       case 'chatbot':
         return <Chatbot />;
       default:
@@ -38,29 +41,28 @@ const App: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen font-sans">
-      <div className="relative isolate flex flex-col min-h-screen">
-        <div className="absolute inset-0 -z-20 h-full w-full premium-background"></div>
-        <div className="absolute inset-0 -z-10 h-full w-full background-grid-glow"></div>
+    <div className="min-h-screen font-sans flex flex-col relative">
+        <div className="fixed inset-0 -z-20 h-full w-full premium-background"></div>
+        <div className="fixed inset-0 -z-10 h-full w-full background-grid-glow"></div>
         
-        <header className="flex-shrink-0 pt-8 pb-6 z-10">
+        <header className="flex-shrink-0 pt-6 pb-4 z-10 sticky top-0 bg-[#0c0a09]/80 backdrop-blur-md border-b border-white/5">
            <div className="flex flex-col items-center gap-4">
-              <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-gray-50 to-gray-300 drop-shadow-lg">
+              <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-gray-50 to-gray-300 drop-shadow-lg">
                 AI Character Factory
               </h1>
               <nav className="flex justify-center">
                 <div className="flex items-center gap-2 p-1.5 glass-card rounded-full">
                   <TabButton tabName="generator" icon={<Image size={16} />} label="Image Generator" />
+                  <TabButton tabName="voice" icon={<Mic size={16} />} label="Voice Generator" />
                   <TabButton tabName="chatbot" icon={<MessageSquare size={16} />} label="Chatbot" />
                 </div>
               </nav>
            </div>
         </header>
 
-        <main className="container mx-auto px-4 sm:px-6 lg:px-8 flex-1 w-full pb-16">
+        <main className="flex-1 w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {renderTabContent()}
         </main>
-      </div>
     </div>
   );
 };

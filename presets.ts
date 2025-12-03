@@ -1,6 +1,6 @@
 
 import { PresetCategory, Preset } from './types';
-import { Film, User, Heart, Palette, Globe, Camera, Paintbrush, TrendingUp, Sparkles, Ghost, Bot, Moon, Image, BookOpen, Gamepad2, Smile } from 'lucide-react';
+import { Film, User, Heart, Palette, Globe, Camera, Paintbrush, TrendingUp, Sparkles, Ghost, Bot, Moon, Image, BookOpen, Gamepad2, Smile, Briefcase } from 'lucide-react';
 
 const p_url = (seed: string, size = 200) => `https://picsum.photos/seed/${seed}/${size}`;
 
@@ -31,10 +31,35 @@ export const PRESET_CATEGORIES: PresetCategory[] = [
     ]
   },
   {
+    id: 'professional',
+    name: 'Professional & Corporate',
+    icon: Briefcase,
+    presets: [
+      {
+        id: 'linkedin-headshot', name: 'LinkedIn Headshot',
+        prompt: 'professional corporate headshot, neutral background, soft studio lighting, confident expression, business attire, high quality',
+        thumbnail: p_url('linkedin-thumb'), tagline: 'Perfect for professional profiles.', tags: ['professional', 'headshot', 'business', 'profile'],
+        previewImages: [p_url('headshot-1', 400), p_url('headshot-2', 400), p_url('headshot-3', 400)],
+      },
+      {
+        id: 'tech-ceo', name: 'Tech CEO',
+        prompt: 'modern tech CEO portrait, casual business attire, modern office background, depth of field, confident and visionary look',
+        thumbnail: p_url('ceo-thumb'), tagline: 'Modern, visionary leadership style.', tags: ['professional', 'tech', 'ceo', 'business'],
+        previewImages: [p_url('ceo-1', 400), p_url('ceo-2', 400), p_url('ceo-3', 400)],
+      },
+    ]
+  },
+  {
     id: 'storybook-fantasy',
     name: 'Storybook & Folklore',
     icon: BookOpen,
     presets: [
+      {
+        id: 'whispering-woods', name: 'Whispering Woods',
+        prompt: 'ethereal enchanted forest setting, soft dappled sunlight filtering through ancient trees, floating fireflies, mossy textures, mystical atmosphere, nature magic, detailed flora',
+        thumbnail: p_url('woods-thumb'), tagline: 'Mystical, dappled forest magic.', tags: ['forest', 'nature', 'magic', 'fantasy'],
+        previewImages: [p_url('woods-1', 400), p_url('woods-2', 400), p_url('woods-3', 400)],
+      },
       {
         id: 'vintage-storybook', name: 'Vintage Book',
         prompt: 'classic vintage storybook illustration, Arthur Rackham style, ink and watercolor, intricate details, muted tones, textured paper background',
@@ -159,6 +184,12 @@ export const PRESET_CATEGORIES: PresetCategory[] = [
         thumbnail: p_url('kdrama-idol'), tagline: 'Charismatic idol visuals.', tags: ['k-drama', 'k-pop', 'idol', 'portrait'],
         previewImages: [p_url('kdrama-idol-1', 400), p_url('kdrama-idol-2', 400), p_url('kdrama-idol-3', 400)],
       },
+      {
+        id: 'historical-sageuk', name: 'Historical Sageuk',
+        prompt: 'Korean historical drama Sageuk style, traditional Hanbok clothing, royal palace background, dramatic lighting, elegant',
+        thumbnail: p_url('sageuk-thumb'), tagline: 'Historical elegance and drama.', tags: ['k-drama', 'historical', 'hanbok', 'royal'],
+        previewImages: [p_url('sageuk-1', 400), p_url('sageuk-2', 400), p_url('sageuk-3', 400)],
+      },
     ]
   },
   {
@@ -271,6 +302,12 @@ export const PRESET_CATEGORIES: PresetCategory[] = [
         prompt: 'Y2K aesthetic, glossy 3D character, cybercore, airbrush finish, iridescent and holographic materials, pink and chrome, early 2000s vibe',
         thumbnail: p_url('y2k-thumb'), tagline: 'Nostalgic, glossy, early 2000s style.', tags: ['y2k', '3d', 'glossy', 'cyber'],
         previewImages: [p_url('y2k-1', 400), p_url('y2k-2', 400), p_url('y2k-3', 400)],
+      },
+      {
+        id: 'wes-anderson', name: 'Wes Anderson Style',
+        prompt: 'Wes Anderson movie style, symmetrical composition, pastel color palette, quirky, flat lighting, centered subject',
+        thumbnail: p_url('wes-thumb'), tagline: 'Symmetrical, pastel, and quirky.', tags: ['cinematic', 'wes anderson', 'pastel', 'quirky'],
+        previewImages: [p_url('wes-1', 400), p_url('wes-2', 400), p_url('wes-3', 400)],
       },
     ]
   }

@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { Download, Trash2, Clapperboard } from 'lucide-react';
 import { GeneratedItem } from '../types';
 import { downloadAllAsZip } from '../utils/fileUtils';
 import { ItemCard } from './ItemCard';
 import { ConfirmationModal } from './ConfirmationModal';
+import { ImageViewerModal } from './ImageViewerModal';
 
 interface GalleryProps {
   items: GeneratedItem[];
@@ -12,9 +14,11 @@ interface GalleryProps {
   onEdit: (id: string) => void;
   upscalingId: string | null;
   onDelete: (id: string) => void;
+  onLock: (item: GeneratedItem) => void;
 }
 
-export const Gallery: React.FC<GalleryProps> = ({ items, setItems, onUpscale, onEdit, upscalingId, onDelete }) => {
+export const Gallery: React.FC<GalleryProps> = ({ items, setItems, onUpscale, onEdit, upscalingId, onDelete, onLock }) => {
+  const [viewingItem, setViewingItem] = useState<GeneratedItem | null>(null);
   const [confirmationState, setConfirmationState] = useState<{
     isOpen: boolean;
     title: string;
@@ -50,7 +54,7 @@ export const Gallery: React.FC<GalleryProps> = ({ items, setItems, onUpscale, on
   };
 
   return (
-    <div className="relative glass-card rounded-2xl p-6 lg:p-8 h-full flex flex-col">
+    <div className="relative glass-card rounded-2xl p-6 lg:p-8 flex flex-col">
       <div className="flex flex-wrap justify-between items-center mb-6 gap-4 flex-shrink-0">
         <h2 className="text-2xl font-semibold text-gray-100">Your Creations</h2>
         {items.length > 0 && (
@@ -70,7 +74,7 @@ export const Gallery: React.FC<GalleryProps> = ({ items, setItems, onUpscale, on
           </div>
         )}
       </div>
-      <div className="relative flex-1 overflow-y-auto">
+      <div className="relative">
         {items.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pr-2">
             {items.map(item => (
@@ -80,12 +84,14 @@ export const Gallery: React.FC<GalleryProps> = ({ items, setItems, onUpscale, on
                 onUpscale={onUpscale}
                 onEdit={onEdit}
                 onDelete={handleDeleteItemClick}
+                onView={setViewingItem}
+                onLock={onLock}
                 isUpscaling={upscalingId === item.id}
               />
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full text-center text-gray-500 border-2 border-dashed border-white/10 rounded-lg p-8">
+          <div className="flex flex-col items-center justify-center py-20 text-center text-gray-500 border-2 border-dashed border-white/10 rounded-lg p-8">
             <Clapperboard size={48} className="mb-4 text-gray-600"/>
             <p className="text-lg font-medium text-gray-400">Your gallery is empty</p>
             <p className="text-sm">Use the controls on the left to start creating!</p>
@@ -99,6 +105,16 @@ export const Gallery: React.FC<GalleryProps> = ({ items, setItems, onUpscale, on
         onConfirm={confirmationState.onConfirm}
         title={confirmationState.title}
         message={confirmationState.message}
+      />
+
+      <ImageViewerModal 
+        item={viewingItem}
+        onClose={() => setViewingItem(null)}
+        onDelete={onDelete}
+        onEdit={onEdit}
+        onUpscale={onUpscale}
+        onLock={onLock}
+        isUpscaling={!!upscalingId}
       />
     </div>
   );

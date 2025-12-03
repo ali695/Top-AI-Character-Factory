@@ -1,10 +1,11 @@
+
 import type React from 'react';
 import { LucideProps } from 'lucide-react';
 
 export interface GeneratedItem {
   id: string;
-  type: 'image' | 'video';
-  data: string; // base64 for image, URL for video
+  type: 'image' | 'video' | 'audio';
+  data: string; // base64 for image/audio, URL for video
   prompt: string;
   mimeType?: string;
 }
@@ -37,4 +38,19 @@ export interface PresetCategory {
   name: string;
   icon: React.FC<LucideProps>;
   presets: Preset[];
+}
+
+export interface VoicePreset {
+  id: string;
+  name: string;
+  description: string;
+  gender: 'male' | 'female' | 'neutral';
+  previewUrl?: string;
+}
+
+export interface VoiceCategory {
+  id: string;
+  name: string;
+  icon: React.FC<LucideProps>;
+  voices: VoicePreset[];
 }

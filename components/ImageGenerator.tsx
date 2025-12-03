@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
-import { Sparkles, Package, Loader2, Film, KeyRound, Upload, FileText, Palette, SlidersHorizontal, Eye, Compass } from 'lucide-react';
+import { Sparkles, Package, Loader2, Film, KeyRound, Upload, FileText, Palette, SlidersHorizontal, Eye, Compass, AlertTriangle, Layers, PenTool } from 'lucide-react';
 import { GeneratedItem, ArtStyle, Preset } from '../types';
 import { ART_STYLES, DETAIL_LEVELS, ENHANCED_QUALITY_PROMPT } from '../constants';
-import { generateImageVariations, upscaleImage, generateVideo, analyzePromptForSuggestions } from '../services/geminiService';
+import { generateImageVariations, upscaleImage, generateVideo, analyzePromptForSuggestions, analyzePromptForPhysicalTraits } from '../services/geminiService';
 import { fileToBase64 } from '../utils/fileUtils';
 import useLocalStorage from '../hooks/useLocalStorage';
 import { Gallery } from './Gallery';
@@ -40,7 +41,12 @@ export const ImageGenerator: React.FC = () => {
   const [prompt, setPrompt] = useState<string>('');
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
   const [traitsToMaintain, setTraitsToMaintain] = useState<string>('');
-  const [selectedStyle, setSelectedStyle] = useState<ArtStyle>(ART_STYLES[0]);
+  
+  // Style State
+  const [selectedStyles, setSelectedStyles] = useState<ArtStyle[]>([ART_STYLES[0]]);
+  const [styleStrength, setStyleStrength] = useState<number>(50);
+  const [customStyle, setCustomStyle] = useState<string>('');
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isVideoLoading, setIsVideoLoading] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
@@ -51,6 +57,7 @@ export const ImageGenerator: React.FC = () => {
   const [showSuccessToast, setShowSuccessToast] = useState<boolean>(false);
   const [editingItem, setEditingItem] = useState<GeneratedItem | null>(null);
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
+  const [conflictWarning, setConflictWarning] = useState<string[]>([]);
   
   const [selectedPreset, setSelectedPreset] = useState<Preset | null>(null);
 
@@ -69,15 +76,25 @@ export const ImageGenerator: React.FC = () => {
     setAiSuggestions(smartTags);
   }, []);
 
+  const debouncedCheckConflicts = useCallback((p: string) => {
+      if (referenceImages.length > 0) {
+          const conflicts = analyzePromptForPhysicalTraits(p);
+          setConflictWarning(conflicts);
+      } else {
+          setConflictWarning([]);
+      }
+  }, [referenceImages.length]);
+
   useEffect(() => {
     const handler = setTimeout(() => {
       debouncedAnalyzePrompt(prompt, selectedPreset);
+      debouncedCheckConflicts(prompt);
     }, 300);
 
     return () => {
       clearTimeout(handler);
     };
-  }, [prompt, selectedPreset, debouncedAnalyzePrompt]);
+  }, [prompt, selectedPreset, debouncedAnalyzePrompt, debouncedCheckConflicts]);
 
   useEffect(() => {
     const checkApiKey = async () => {
@@ -95,13 +112,40 @@ export const ImageGenerator: React.FC = () => {
   }, []);
   
   const handleGenerate = async (bulk = false) => {
-    const finalPrompt = [selectedPreset?.prompt, prompt].filter(Boolean).join(', ');
+    // Prompt Construction Logic
+    let styleSuffix = '';
 
-    if (!finalPrompt && referenceImages.length === 0) {
+    // 1. Calculate Style Strength Modifier
+    let strengthModifier = '';
+    if (styleStrength < 30) strengthModifier = 'subtle hint of ';
+    else if (styleStrength > 80) strengthModifier = 'heavy, intense, pure ';
+    else strengthModifier = ''; // Standard strength
+
+    // 2. Combine Selected Styles
+    if (selectedStyles.length > 0) {
+        const blendedStyles = selectedStyles.map(s => s.prompt_suffix).join(', ');
+        styleSuffix += `${strengthModifier}${blendedStyles}`;
+    }
+
+    // 3. Add Custom Style
+    if (customStyle.trim()) {
+        styleSuffix += `, ${customStyle}`;
+    }
+
+    // 4. Add Quality Modifiers
+    if (enhanceQuality) {
+        styleSuffix += `, ${ENHANCED_QUALITY_PROMPT}`;
+    } else {
+        styleSuffix += `, ${detailLevel.prompt_suffix}`;
+    }
+
+    const basePrompt = [selectedPreset?.prompt, prompt].filter(Boolean).join(', ');
+
+    if (!basePrompt && referenceImages.length === 0) {
       setError('Please choose a preset and describe your character, or upload a reference image.');
       return;
     }
-    if (referenceImages.length > 0 && !finalPrompt) {
+    if (referenceImages.length > 0 && !basePrompt) {
       setError('With reference images, please choose a preset and describe the character or a scene.');
       return;
     }
@@ -115,12 +159,8 @@ export const ImageGenerator: React.FC = () => {
     try {
       const count = bulk ? batchSize : 1;
       
-      const styleSuffix = enhanceQuality
-        ? ENHANCED_QUALITY_PROMPT
-        : `${selectedStyle.prompt_suffix}, ${detailLevel.prompt_suffix}`;
-        
       const imageResults = await generateImageVariations(
-        finalPrompt, count, referenceImages, setProgress, styleSuffix, aspectRatio, imageFormat, traitsToMaintain
+        basePrompt, count, referenceImages, setProgress, styleSuffix, aspectRatio, imageFormat, traitsToMaintain
       );
 
       const newImages: GeneratedItem[] = imageResults.map(result => ({
@@ -130,8 +170,6 @@ export const ImageGenerator: React.FC = () => {
       setGeneratedItems(prev => [...newImages, ...prev].slice(0, STORAGE_LIMIT));
 
       if (usedReferenceImages.length > 0) {
-        setReferenceImages([]);
-        setTraitsToMaintain('');
         setShowSuccessToast(true);
         setTimeout(() => setShowSuccessToast(false), 3000);
       }
@@ -189,8 +227,6 @@ export const ImageGenerator: React.FC = () => {
       setGeneratedItems(prev => [newVideo, ...prev].slice(0, STORAGE_LIMIT));
       
        if (usedReferenceImage) {
-        setReferenceImages([]);
-        setTraitsToMaintain('');
         setShowSuccessToast(true);
         setTimeout(() => setShowSuccessToast(false), 3000);
       }
@@ -223,6 +259,13 @@ export const ImageGenerator: React.FC = () => {
   
   const handleImageRemove = (index: number) => {
     setReferenceImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleLockItem = (item: GeneratedItem) => {
+     if (item.type !== 'image') return;
+     const dataUri = `data:${item.mimeType || 'image/png'};base64,${item.data}`;
+     setReferenceImages([dataUri]); 
+     setShowSuccessToast(true);
   };
   
   const handleUpscale = async (imageId: string) => {
@@ -323,22 +366,31 @@ export const ImageGenerator: React.FC = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-8 h-full">
+    <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-8">
       {showSuccessToast && (
         <div className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-green-600 text-white py-2 px-4 rounded-lg shadow-lg z-50 animate-fadeInOut">
-          Reference item(s) used and cleared successfully!
+          Character Locked! References updated.
         </div>
       )}
       
       <div className="lg:col-span-1 xl:col-span-1 flex flex-col animate-fadeIn" style={{ animationDelay: '100ms' }}>
         
-        <div className="flex-1 space-y-6 overflow-y-auto pr-4 pb-6 -mr-4">
-          <ControlModule icon={<Upload size={18} className="text-gray-300" />} title="Upload References">
+        <div className="space-y-6">
+          <ControlModule icon={<Upload size={18} className="text-gray-300" />} title="Reference / Character Lock">
               <UploadBox onImagesUpload={handleImagesUpload} referenceImages={referenceImages} onImageRemove={handleImageRemove}/>
-              {referenceImages.length > 0 && (
-                  <p className="text-center text-sm text-green-300 mt-4 p-2 bg-green-500/10 rounded-md border border-green-500/20">
-                  Using {referenceImages.length} reference image(s).
-                  </p>
+              {referenceImages.length > 0 ? (
+                  <div className="text-center mt-4">
+                    <p className="text-sm text-green-300 p-2 bg-green-500/10 rounded-md border border-green-500/20 font-semibold">
+                    🔒 Character Identity Locked
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      AI will now keep this face and body for all new prompts.
+                    </p>
+                  </div>
+              ) : (
+                 <p className="text-xs text-gray-500 text-center mt-2">
+                    Upload an image or click "Lock" on a result to keep consistent character identity.
+                 </p>
               )}
           </ControlModule>
 
@@ -349,33 +401,97 @@ export const ImageGenerator: React.FC = () => {
             />
           </ControlModule>
 
-          <ControlModule icon={<FileText size={18} className="text-gray-300" />} title="Describe your Character">
+          <ControlModule icon={<FileText size={18} className="text-gray-300" />} title="Describe Scene or Action">
              <div className="relative">
                 <textarea
-                    className="w-full bg-black/20 border border-white/10 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200 resize-none h-28 placeholder-gray-500"
-                    placeholder={selectedPreset ? "Add details, e.g., a brave knight with a silver sword, realistic textures..." : "First, choose a preset above, then describe your character..."}
+                    className={`w-full bg-black/20 border ${conflictWarning.length > 0 ? 'border-amber-500/50 focus:border-amber-500' : 'border-white/10 focus:border-purple-500'} rounded-lg p-3 focus:ring-2 focus:ring-opacity-50 ${conflictWarning.length > 0 ? 'focus:ring-amber-500' : 'focus:ring-purple-500'} transition duration-200 resize-none h-28 placeholder-gray-500`}
+                    placeholder={referenceImages.length > 0 
+                        ? "Describe the POSE and SCENE only (e.g., running in a forest, drinking coffee). Do NOT describe the character's face." 
+                        : selectedPreset 
+                            ? "Add details to your character..." 
+                            : "Describe your character..."}
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                 />
+                {conflictWarning.length > 0 && (
+                    <div className="absolute bottom-3 right-3 flex items-center gap-1 text-amber-400 animate-fadeIn">
+                         <AlertTriangle size={14} />
+                         <span className="text-xs font-medium">Conflict</span>
+                    </div>
+                )}
              </div>
+             {conflictWarning.length > 0 && (
+                 <div className="mt-2 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg animate-fadeIn">
+                     <p className="text-xs text-amber-200 mb-1 font-semibold">Character Lock Active:</p>
+                     <p className="text-xs text-gray-400 leading-relaxed">
+                         You are describing physical traits ({conflictWarning.join(', ')}). 
+                         Since the character is locked, the AI will prioritize the reference image over your text to maintain consistency.
+                     </p>
+                 </div>
+             )}
               <AISuggestionsBar suggestions={aiSuggestions} onSuggestionClick={handleSuggestionClick} />
           </ControlModule>
 
           {referenceImages.length > 0 && (
-            <ControlModule icon={<Eye size={18} className="text-gray-300" />} title="Maintain Traits" className="animate-fadeIn">
-                <p className="text-sm text-gray-400 mb-3">List specific features to keep consistent, separated by commas.</p>
+            <ControlModule icon={<Eye size={18} className="text-gray-300" />} title="Maintain Specific Traits" className="animate-fadeIn">
+                <p className="text-sm text-gray-400 mb-3">Force specific details (e.g. "blue eyes") if the AI misses them.</p>
                 <input
                     type="text"
                     className="w-full bg-black/20 border border-white/10 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200 placeholder-gray-500"
-                    placeholder="e.g., blue eyes, scar over left eye"
+                    placeholder="e.g., scar on left cheek"
                     value={traitsToMaintain}
                     onChange={(e) => setTraitsToMaintain(e.target.value)}
                 />
             </ControlModule>
           )}
 
-          <ControlModule icon={<Palette size={18} className="text-gray-300" />} title="Choose a Style">
-              <StyleSelector styles={ART_STYLES} selectedStyle={selectedStyle} onSelectStyle={setSelectedStyle} disabled={enhanceQuality}/>
+          <ControlModule icon={<Palette size={18} className="text-gray-300" />} title="Style & Atmosphere">
+              {/* Custom Style Input */}
+              <div className="mb-4">
+                 <label className="flex items-center gap-2 text-xs font-semibold text-gray-400 mb-2">
+                    <PenTool size={12} /> Custom Style Description (Optional)
+                 </label>
+                 <input
+                    type="text"
+                    value={customStyle}
+                    onChange={(e) => setCustomStyle(e.target.value)}
+                    className="w-full bg-black/20 border border-white/10 rounded-lg p-2 text-sm placeholder-gray-600 focus:ring-1 focus:ring-purple-500"
+                    placeholder="e.g. Van Gogh brushstrokes, heavy ink lines..."
+                 />
+              </div>
+              
+              {/* Style Selection */}
+              <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-semibold text-gray-400">Select Styles (Blendable)</span>
+                      {selectedStyles.length > 1 && (
+                          <span className="text-[10px] text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full">
+                             Blending {selectedStyles.length} styles
+                          </span>
+                      )}
+                  </div>
+                  <StyleSelector styles={ART_STYLES} selectedStyles={selectedStyles} onSelectStyles={setSelectedStyles} disabled={enhanceQuality}/>
+              </div>
+
+              {/* Style Strength Slider */}
+              {!enhanceQuality && (
+                  <div className="mt-2 pt-4 border-t border-white/5">
+                      <div className="flex justify-between text-xs text-gray-400 mb-2">
+                          <span className="flex items-center gap-1"><Layers size={12}/> Style Strength</span>
+                          <span className={styleStrength > 80 ? 'text-purple-400' : ''}>
+                              {styleStrength < 30 ? 'Subtle' : styleStrength > 80 ? 'Intense' : 'Balanced'} ({styleStrength}%)
+                          </span>
+                      </div>
+                      <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={styleStrength}
+                          onChange={(e) => setStyleStrength(parseInt(e.target.value))}
+                          className="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                      />
+                  </div>
+              )}
           </ControlModule>
                   
           <ControlModule icon={<SlidersHorizontal size={18} className="text-gray-300" />} title="Advanced Quality Controls">
@@ -465,7 +581,15 @@ export const ImageGenerator: React.FC = () => {
       </div>
 
       <div className="lg:col-span-2 xl:col-span-3 animate-fadeIn" style={{ animationDelay: '200ms' }}>
-        <Gallery items={generatedItems} setItems={setGeneratedItems} onUpscale={handleUpscale} onEdit={handleEditStart} upscalingId={upscalingId} onDelete={handleDeleteItem} />
+        <Gallery 
+            items={generatedItems} 
+            setItems={setGeneratedItems} 
+            onUpscale={handleUpscale} 
+            onEdit={handleEditStart} 
+            upscalingId={upscalingId} 
+            onDelete={handleDeleteItem}
+            onLock={handleLockItem}
+        />
       </div>
 
       <ImageEditorModal
