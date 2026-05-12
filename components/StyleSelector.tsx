@@ -1,65 +1,73 @@
+'use client';
 
 import React from 'react';
-import { ArtStyle } from '../types';
-import { Check } from 'lucide-react';
+import { ArtStyle } from '@/types';
+import { ART_STYLES } from '@/constants';
 
 interface StyleSelectorProps {
-  styles: ArtStyle[];
   selectedStyles: ArtStyle[];
   onSelectStyles: (styles: ArtStyle[]) => void;
-  disabled?: boolean;
+  styleStrength: number;
+  onStyleStrengthChange: (strength: number) => void;
 }
 
-export const StyleSelector: React.FC<StyleSelectorProps> = ({ styles, selectedStyles, onSelectStyles, disabled = false }) => {
-  
-  const handleStyleClick = (style: ArtStyle) => {
-    if (disabled) return;
-
+export const StyleSelector: React.FC<StyleSelectorProps> = ({
+  selectedStyles,
+  onSelectStyles,
+  styleStrength,
+  onStyleStrengthChange,
+}) => {
+  const toggleStyle = (style: ArtStyle) => {
     const isSelected = selectedStyles.some(s => s.id === style.id);
-    let newStyles: ArtStyle[];
-
     if (isSelected) {
-      // Deselect: remove if it's not the last one, or allow clearing all? 
-      // Let's allow clearing all to rely purely on custom styles if desired.
-      newStyles = selectedStyles.filter(s => s.id !== style.id);
+      onSelectStyles(selectedStyles.filter(s => s.id !== style.id));
     } else {
-      // Select: Add to array
-      newStyles = [...selectedStyles, style];
+      onSelectStyles([...selectedStyles, style]);
     }
-    onSelectStyles(newStyles);
   };
 
   return (
-    <div className={`grid grid-cols-3 gap-2 ${disabled ? 'opacity-50' : ''}`}>
-      {styles.map(style => {
-        const isSelected = selectedStyles.some(s => s.id === style.id);
-        return (
-          <button
-            key={style.id}
-            type="button"
-            onClick={() => handleStyleClick(style)}
-            disabled={disabled}
-            className={`group relative p-2 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 text-xs font-semibold overflow-hidden
-              ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
-              ${isSelected
-                ? 'border-purple-500 text-white bg-purple-500/20'
-                : 'border-transparent hover:bg-white/10 text-gray-300 bg-white/5'
-              }
-              border
-            `}
-          >
-            {isSelected && (
-               <div className="absolute top-1 right-1 text-purple-400 animate-fadeIn">
-                  <Check size={12} strokeWidth={3} />
-               </div>
-            )}
-            <div className="relative z-10 flex flex-col items-center gap-1.5">
-               <style.icon size={20} className={isSelected ? "text-purple-300" : "text-gray-400"} />
-               <span className="text-center leading-tight">{style.name}</span>
-            </div>
-          </button>
-        );
-      })}
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-2">
+        {ART_STYLES.slice(0, 6).map((style) => {
+          const Icon = style.icon;
+          const isSelected = selectedStyles.some(s => s.id === style.id);
+          return (
+            <button
+              key={style.id}
+              onClick={() => toggleStyle(style)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                isSelected
+                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
+                  : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-gray-300'
+              }`}
+            >
+              <Icon size={12} />
+              {style.name}
+            </button>
+          );
+        })}
+      </div>
+      
+      <div className="space-y-2">
+        <div className="flex justify-between text-xs text-gray-400">
+          <span>Style Strength</span>
+          <span>{styleStrength}%</span>
+        </div>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value={styleStrength}
+          onChange={(e) => onStyleStrengthChange(Number(e.target.value))}
+          className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-purple-500"
+        />
+        <div className="flex justify-between text-xs text-gray-500">
+          <span>Subtle</span>
+          <span>Balanced</span>
+          <span>Intense</span>
+        </div>
+      </div>
     </div>
   );
 };
