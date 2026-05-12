@@ -1,121 +1,71 @@
+'use client';
 
-import React, { useState } from 'react';
-import { Download, Trash2, Clapperboard } from 'lucide-react';
-import { GeneratedItem } from '../types';
-import { downloadAllAsZip } from '../utils/fileUtils';
-import { ItemCard } from './ItemCard';
-import { ConfirmationModal } from './ConfirmationModal';
-import { ImageViewerModal } from './ImageViewerModal';
+import React from 'react';
+import { Trash2, Download } from 'lucide-react';
+import { GeneratedItem } from '@/types';
 
 interface GalleryProps {
   items: GeneratedItem[];
-  setItems: React.Dispatch<React.SetStateAction<GeneratedItem[]>>;
-  onUpscale: (id: string) => void;
-  onEdit: (id: string) => void;
-  upscalingId: string | null;
-  onDelete: (id: string) => void;
-  onLock: (item: GeneratedItem) => void;
+  onDeleteItem: (id: string) => void;
 }
 
-export const Gallery: React.FC<GalleryProps> = ({ items, setItems, onUpscale, onEdit, upscalingId, onDelete, onLock }) => {
-  const [viewingItem, setViewingItem] = useState<GeneratedItem | null>(null);
-  const [confirmationState, setConfirmationState] = useState<{
-    isOpen: boolean;
-    title: string;
-    message: string;
-    onConfirm: () => void;
-  }>({
-    isOpen: false,
-    title: '',
-    message: '',
-    onConfirm: () => {},
-  });
-
-  const handleClearAllClick = () => {
-    setConfirmationState({
-      isOpen: true,
-      title: 'Clear Gallery',
-      message: 'Are you sure you want to delete all generated items? This action cannot be undone.',
-      onConfirm: () => setItems([]),
-    });
+export const Gallery: React.FC<GalleryProps> = ({ items, onDeleteItem }) => {
+  const handleDownload = (item: GeneratedItem) => {
+    const link = document.createElement('a');
+    link.href = `data:${item.mimeType || 'image/jpeg'};base64,${item.data}`;
+    link.download = `ai-character-${item.id.slice(0, 8)}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  const handleDeleteItemClick = (id: string) => {
-    setConfirmationState({
-      isOpen: true,
-      title: 'Delete Item',
-      message: 'Are you sure you want to delete this item? This action cannot be undone.',
-      onConfirm: () => onDelete(id),
-    });
-  };
-
-  const closeConfirmation = () => {
-    setConfirmationState(prev => ({ ...prev, isOpen: false }));
-  };
+  if (items.length === 0) {
+    return (
+      <div className="glass-card rounded-2xl p-12 text-center">
+        <div className="w-16 h-16 mx-auto mb-4 bg-white/5 rounded-full flex items-center justify-center">
+          <span className="text-3xl">🎨</span>
+        </div>
+        <h3 className="text-xl font-semibold text-gray-300 mb-2">No Images Yet</h3>
+        <p className="text-gray-500">Generate your first AI character to see it here!</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative glass-card rounded-2xl p-6 lg:p-8 flex flex-col">
-      <div className="flex flex-wrap justify-between items-center mb-6 gap-4 flex-shrink-0">
-        <h2 className="text-2xl font-semibold text-gray-100">Your Creations</h2>
-        {items.length > 0 && (
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => downloadAllAsZip(items)}
-              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-colors"
-            >
-              <Download size={16} /> Download All
-            </button>
-            <button
-              onClick={handleClearAllClick}
-              className="flex items-center gap-2 bg-red-500/20 hover:bg-red-500/40 text-red-300 font-semibold py-2 px-4 rounded-lg text-sm transition-colors"
-            >
-              <Trash2 size={16} /> Clear All
-            </button>
-          </div>
-        )}
-      </div>
-      <div className="relative">
-        {items.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pr-2">
-            {items.map(item => (
-              <ItemCard 
-                key={item.id} 
-                item={item} 
-                onUpscale={onUpscale}
-                onEdit={onEdit}
-                onDelete={handleDeleteItemClick}
-                onView={setViewingItem}
-                onLock={onLock}
-                isUpscaling={upscalingId === item.id}
+    <div className="glass-card rounded-2xl p-6">
+      <h2 className="text-xl font-semibold text-gray-100 mb-6">Generated Images ({items.length})</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {items.map((item) => (
+          item.type === 'image' && (
+            <div key={item.id} className="group relative bg-black/20 rounded-xl overflow-hidden aspect-square">
+              <img
+                src={`data:${item.mimeType || 'image/jpeg'};base64,${item.data}`}
+                alt={item.prompt}
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-20 text-center text-gray-500 border-2 border-dashed border-white/10 rounded-lg p-8">
-            <Clapperboard size={48} className="mb-4 text-gray-600"/>
-            <p className="text-lg font-medium text-gray-400">Your gallery is empty</p>
-            <p className="text-sm">Use the controls on the left to start creating!</p>
-          </div>
-        )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute bottom-0 left-0 right-0 p-3">
+                  <p className="text-xs text-gray-300 line-clamp-2 mb-2">{item.prompt}</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleDownload(item)}
+                      className="flex-1 py-1.5 px-2 bg-white/20 hover:bg-white/30 rounded-lg text-xs text-white flex items-center justify-center gap-1 transition-colors"
+                    >
+                      <Download size={12} /> Download
+                    </button>
+                    <button
+                      onClick={() => onDeleteItem(item.id)}
+                      className="py-1.5 px-2 bg-red-500/80 hover:bg-red-600 rounded-lg text-xs text-white flex items-center justify-center transition-colors"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        ))}
       </div>
-
-      <ConfirmationModal
-        isOpen={confirmationState.isOpen}
-        onClose={closeConfirmation}
-        onConfirm={confirmationState.onConfirm}
-        title={confirmationState.title}
-        message={confirmationState.message}
-      />
-
-      <ImageViewerModal 
-        item={viewingItem}
-        onClose={() => setViewingItem(null)}
-        onDelete={onDelete}
-        onEdit={onEdit}
-        onUpscale={onUpscale}
-        onLock={onLock}
-        isUpscaling={!!upscalingId}
-      />
     </div>
   );
 };
