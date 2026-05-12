@@ -2,17 +2,31 @@
 # Dependencies
 node_modules/
 
-# Build outputs
-.next/
-dist/
-build/
-coverage/
-htmlcov/
-
 # Environment variables
 .env
 .env.local
 .env.*
+
+# Build outputs
+dist/
+build/
+.next/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE specific
+.vscode/
+.idea/
 
 # Python
 __pycache__/
@@ -33,23 +47,35 @@ nosetests.xml
 coverage.xml
 *.cover
 *.log
-*.tmp
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Testing
+.git/
 .mypy_cache/
 .pytest_cache/
+.hypothesis/
+
+# Node.js
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+node_modules/
+dist/
+build/
+.nyc_output
 coverage/
-htmlcov/
-*.log
-*.tmp
+*.lcov
+.nodemonignore
+.forestry/
+
+# Next.js
+.next/
+out/
+.next/**/*
+
+# General build artifacts
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.a
+*.out
 ```
